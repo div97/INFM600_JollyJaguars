@@ -1,0 +1,18 @@
+Hi Dr.Wiggins,
+
+Here are the top 4 preferences for our dataset choice:
+1. Public Safety Calls Baltimore
+2. World Food Facts
+3. Traffic Violations Montgomery County
+4. NOAA Severe Weather Data
+
+Public Safety Calls Baltimore
+The dataset 'Public Safety Calls Baltimore' is our first choice because it contains scores of data about a very intriguing and unseen sector of our society.
+We are interested to find out how the type and number of 911 calls vary based on the proximity to the coast (for example, are there more emergency calls inland?)
+Are there more emergency calls during the weekend? This data set would be perfect because it is updated on a daily basis and it is local.
+
+World Food Facts
+We are interested to work with the 'World Food Facts' dataset because it is an open database that does not contain trace data. 
+The data set contains vast repository of food facts from almost every country in the world. 
+We would like to find out whether a pattern exists between the obesity rate in a region and the amount of sugar and fat consumed in the same region (We will have to find anther data set related to obesity)
+We are also curious about what type of food Europeans eat and how the food habits differ for each European country.
