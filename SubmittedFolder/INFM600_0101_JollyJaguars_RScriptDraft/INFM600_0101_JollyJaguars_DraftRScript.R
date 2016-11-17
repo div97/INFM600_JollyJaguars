@@ -1,3 +1,6 @@
+# Title: R Script Draft
+# Last Modified: 11/17/2016
+# Description: The commands in the script can be used on any sample of our dataset to analyse our research questions.
 
 # Loading the dataset containing about 2 million records into R
 mydata=read.csv('Final Subset Data CSV.csv')
