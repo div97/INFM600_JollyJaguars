@@ -1,5 +1,10 @@
+#**Baltimore Emergency Calls**#
 
-##Data Analytics project steps##
+##**Summary**##
+(We will write the 500 word summary here, and include plots)
+
+##**Analysis Steps**##
+(Here we will have all the data cleaning, R script and R plot. This section will be mostly code)
 
 ###**How we obtained the data**###
 
@@ -23,3 +28,5 @@ subsetcalls <- mydata[sample(1:nrow(mydata), 50000, replace=FALSE),]
 library(xlsx)
 write.xlsx(x = subsetcalls.dataframe, file = "test.excelfile.xlsx",sheetName = "TestSheet", ##row.names = FALSE)
 ```
+##**Contributorship**##
+(who did what section)
