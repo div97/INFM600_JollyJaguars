@@ -1,0 +1,126 @@
+#**Baltimore Emergency Calls**#
+
+##Summary##
+(this is the 500 word summary)
+
+
+##Data Analytics project steps##
+
+###**1. How we obtained the data**###
+
+We downloaded the Baltimore Emergency Calls data set from https://data.baltimorecity.gov/Public-Safety/Calls-for-Service/xviu-ezkt
+
+The original data set consists of almost 2 million records. We downloaded the data in CSV format, then imported the data into R.
+
+We decided to use a random sample of 50,000 rows for our analysis. 
+One team member took a random sample, and distributed the same random sample to the rest of the team, so that we would all have the exact same sample.
+
+**Step by step instructions:**
+
+```{r, eval=FALSE}
+##Load the data into R
+mydata=read.csv('Final Subset Data CSV.csv')
+
+##Take a random sample of 50,000 rows
+subsetcalls <- mydata[sample(1:nrow(mydata), 50000, replace=FALSE),]
+
+##Convert to Excel format, so that the random sample can be distributed to the team members
+library(xlsx)
+write.xlsx(x = subsetcalls.dataframe, file = "test.excelfile.xlsx",sheetName = "TestSheet", ##row.names = FALSE)
+```
+
+```{r, include=FALSE}
+##Displaying a few rows from the subset
+
+setwd("~/INFM 600/Main Project/Data Cleaning")
+subsetcalls=read.csv('Final Subset Data CSV.csv')
+library(sqldf)
+sqldf('SELECT * from subsetcalls limit 5')
+```
+
+```{r,echo=FALSE, results='asis'}
+subsetcallsdisplay<-sqldf('SELECT * from subsetcalls limit 5')
+library(knitr)
+kable(subsetcallsdisplay)
+```
+
+###**2. Data Cleaning and Analysis Script for the first question**###
+
+Question 1: Are more 911 calls related to burglary made during the night? Or is that just a preconcieved notion?
+
+To answer this I first need to perform data cleaning on the 'Description' and 'CallDateTime' fields
+
+**Data Cleaning**
+```{r}
+
+##---CallDateTime field---
+## 1. This question needs the time and not the date, so remove the dates using excel
+##      Click on the column header so that the entire column and all its rows are highlighted.
+##      Right click and select 'Format Cells'. 
+##      In the pop up that opens, go to the 'Number tab', and select the Category as 'Time'.
+##      Select the time format '13:30:55' and click on 'Ok'. Now the date values should disappear
+
+## 2. Read data into R
+setwd("~/INFM 600/Main Project/Data Cleaning")
+subsetcalls=read.csv('Final Subset Data CSV.csv')
+
+## 3. Convert into 'Time' format
+library(chron)
+subsetcalls$CallDateTime=chron(times=subsetcalls$CallDateTime)
+
+##---Description field---
+## 1. Look through all the distinct 'Description' values and identify the ones related to robberies
+## Load sqldf library
+allrobbery<-sqldf('SELECT DISTINCT subsetcalls.Description FROM subsetcalls')
+
+## 2. Modify all the 'Description' values related to robberies to read "BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="ATTEMP BURGLARY"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="BURGLARPY"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="Burglary"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="POSS BURGLARY"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="POSS STOLEN"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="Robbery Armed"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="ROBBERY ARMED"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="Robbery Unarmed"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="ROBBERY UNARMED"]<-"BURGLARY"
+subsetcalls$Description[subsetcalls$Description=="ATTEMPT THEFT"]<-"BURGLARY"
+
+## 3. The final modified subset for this particular question, after data cleaning
+finalburglary<-sqldf('SELECT subsetcalls.Description, subsetcalls.CallDateTime FROM subsetcalls WHERE Description = "BURGLARY" order by subsetcalls.CallDateTime')
+```
+To perform analysis, I need to categorize the times as Morning, Afternoon, Evening, Night
+
+```{r}
+
+## 1. Create a new column called 'Time_Of_Day', and enter the default value as 'Night'
+finalburglary["Time_Of_Day"]<- 'Night'
+
+## 2. Label the hours from 5AM-11AM as Morning, 11AM-5PM as Daytime, and 5PM-11PM as Evening
+finalburglary$Time_Of_Day[finalburglary$CallDateTime > '05:00:00' & finalburglary$CallDateTime <= '11:00:00'] <- 'AMMorning'
+finalburglary$Time_Of_Day[finalburglary$CallDateTime > '11:00:00' & finalburglary$CallDateTime <= '17:00:00'] <- 'Daytime'
+finalburglary$Time_Of_Day[finalburglary$CallDateTime > '17:00:00' & finalburglary$CallDateTime <= '23:00:00'] <- 'Evening'
+
+## I have entered Morning as "AMMorning" because the 4 categories are displayed by alphabetical order in the plot, and Morning needs to appear first. I have changed the category label name in the plot.
+```
+
+**Plot the data**
+```{r}
+## Obtain the counts of each category in the form of a table, this will help with plotting the data
+counts<- table(finalburglary$Time_Of_Day)
+
+## Used a barplot. Set the X and Y axis labels, the column names, and the colors.
+barplot(counts, main = "Burglaries Count by Time of Day", xlab = "Time of Day", ylab = "Number of Burglaries", ylim = c(0, 600), col = c("lightseagreen", "brown1", "chartreuse3", "darkorchid1"), names.arg=c("Morning", "Day Time", "Evening", "Night"))
+
+## Display the burglary count and timing for each category
+text(0.7, 100, "5AM-11AM")
+text(1.9, 100, "11AM-5PM")
+text(3.1, 100, "5PM-11PM")
+text(4.3, 100, "11PM-5AM")
+text(0.7, 270, "234")
+text(1.9, 470, "428")
+text(3.1, 470, "432")
+text(4.3, 270, "228")
+```
+
+
+
